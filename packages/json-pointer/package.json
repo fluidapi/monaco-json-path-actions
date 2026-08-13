@@ -1,0 +1,44 @@
+{
+  "name": "@fluidapi/monaco-json-path-actions-json-pointer",
+  "version": "0.1.0",
+  "description": "JSON Pointer formatter add-on for @fluidapi/monaco-json-path-actions.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Fluid API",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fluidapi/monaco-json-path-actions.git",
+    "directory": "packages/json-pointer"
+  },
+  "keywords": [
+    "monaco-editor",
+    "json",
+    "json-path",
+    "json-pointer"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@fluidapi/monaco-json-path-actions": "^0.2.0"
+  },
+  "devDependencies": {
+    "@fluidapi/monaco-json-path-actions": "file:../..",
+    "typescript": "^5.4.5"
+  }
+}

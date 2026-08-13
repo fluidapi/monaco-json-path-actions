@@ -33,11 +33,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && npm run build -w @fluidapi/monaco-json-path-actions-go-template",
+    "build": "tsc -p tsconfig.build.json && npm run build --workspaces --if-present",
     "build:core": "tsc -p tsconfig.build.json",
-    "build:addons": "npm run build -w @fluidapi/monaco-json-path-actions-go-template",
+    "build:addons": "npm run build --workspaces --if-present",
     "test": "node --test test/*.test.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @fluidapi/monaco-json-path-actions-go-template",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck --workspaces --if-present",
     "validate": "npm run typecheck && npm run build && npm test"
   },
   "dependencies": {

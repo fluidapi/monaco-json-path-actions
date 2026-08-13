@@ -6,6 +6,8 @@ import {
   registerJsonPathActions
 } from '../dist/index.js'
 import { createGoTemplatePathAction } from '../packages/go-template/dist/index.js'
+import { createJqPathAction } from '../packages/jq/dist/index.js'
+import { createJsonPointerPathAction } from '../packages/json-pointer/dist/index.js'
 
 const createEditor = (value, offset, languageId = 'json') => {
   const actions = []
@@ -66,20 +68,29 @@ describe('registerJsonPathActions', () => {
     assert.deepEqual(copiedEvents, [['simple', jsonAction, ['simple']]])
   })
 
-  it('registers Go template paths through the optional add-on action', async () => {
+  it('registers add-on actions through custom action definitions', async () => {
     const value = '{"customer":{"orders":[{"shipping-address":{"city":"Floripa"}}]}}'
     const { actions, editor } = createEditor(value, value.indexOf('Floripa'))
     const copied = []
 
     registerJsonPathActions(editor, {
-      actions: [createJsonPathAction(), createGoTemplatePathAction()],
+      actions: [
+        createJsonPathAction(),
+        createGoTemplatePathAction(),
+        createJsonPointerPathAction(),
+        createJqPathAction()
+      ],
       copyText: (text) => copied.push(text)
     })
 
     await actions[1].run()
+    await actions[2].run()
+    await actions[3].run()
 
     assert.deepEqual(copied, [
-      '{{ index . "customer" "orders" 0 "shipping-address" "city" }}'
+      '{{ index . "customer" "orders" 0 "shipping-address" "city" }}',
+      '/customer/orders/0/shipping-address/city',
+      '.customer.orders[0]["shipping-address"].city'
     ])
   })
 
