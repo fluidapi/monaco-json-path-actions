@@ -18,6 +18,15 @@ npm install @fluidapi/monaco-json-path-actions-jq
 npm install @fluidapi/monaco-json-path-actions-go-template
 ```
 
+Packages:
+
+| Package | Action | Output example |
+| --- | --- | --- |
+| `@fluidapi/monaco-json-path-actions` | Copy JSON Path | `customer.orders[0].id` |
+| `@fluidapi/monaco-json-path-actions-json-pointer` | Copy JSON Pointer | `/customer/orders/0/id` |
+| `@fluidapi/monaco-json-path-actions-jq` | Copy jq Path | `.customer.orders[0].id` |
+| `@fluidapi/monaco-json-path-actions-go-template` | Copy Go Template Path | `{{ .customer.name }}` |
+
 ## Usage
 
 ```ts
@@ -64,6 +73,8 @@ const disposable = registerJsonPathActions(editor, {
   copyText: (text) => navigator.clipboard.writeText(text)
 })
 ```
+
+When `actions` is provided, pass every action you want registered, including the core JSON Path action.
 
 Custom actions only need an id, label, and formatter:
 
@@ -174,6 +185,22 @@ Important options:
 - `onCopyError`: called when `copyText` fails.
 - `isEnabledForLanguage`: override language eligibility.
 - `contextMenuGroupId`, `contextMenuOrder`, `precondition`: Monaco action defaults.
+
+## Example
+
+This repository includes a minimal Vite example with Monaco and all published actions:
+
+- Copy JSON Path
+- Copy JSON Pointer
+- Copy jq Path
+- Copy Go Template Path
+
+```bash
+npm install
+npm run dev -w @fluidapi/monaco-json-path-actions-basic-example
+```
+
+Then open the Vite local URL and right-click a JSON key or value in the editor.
 
 ## Development
 

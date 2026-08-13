@@ -1,0 +1,23 @@
+{
+  "name": "@fluidapi/monaco-json-path-actions-basic-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fluidapi/monaco-json-path-actions": "file:../..",
+    "@fluidapi/monaco-json-path-actions-go-template": "file:../../packages/go-template",
+    "@fluidapi/monaco-json-path-actions-jq": "file:../../packages/jq",
+    "@fluidapi/monaco-json-path-actions-json-pointer": "file:../../packages/json-pointer",
+    "monaco-editor": "^0.50.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^8.2.1"
+  }
+}

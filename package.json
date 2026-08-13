@@ -30,7 +30,8 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build --workspaces --if-present",

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monaco JSON Path Actions</title>
+  </head>
+  <body>
+    <main class="app">
+      <section class="toolbar" aria-label="Copied value">
+        <div>
+          <h1>Monaco JSON Path Actions</h1>
+          <p>Right-click a JSON key or value to copy paths in different formats.</p>
+        </div>
+        <output id="copied-output" class="copied-output">Nothing copied yet</output>
+      </section>
+      <div id="editor" class="editor"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
