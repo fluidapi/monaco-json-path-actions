@@ -1,0 +1,46 @@
+{
+  "name": "@fluidapi/monaco-json-path-actions",
+  "version": "0.1.0",
+  "description": "Monaco editor actions for copying JSON paths and Go template paths from JSON/JSONC documents.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Fluid API",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:fluidapi/monaco-json-path-actions.git"
+  },
+  "keywords": [
+    "monaco-editor",
+    "json",
+    "jsonc",
+    "json-path",
+    "go-template"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "validate": "npm run typecheck && npm run build && npm test"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.5"
+  }
+}
