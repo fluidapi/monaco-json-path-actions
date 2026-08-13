@@ -2,9 +2,20 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
+    "paths": {
+      "@fluidapi/monaco-json-path-actions": ["../../src/index.ts"],
+      "@fluidapi/monaco-json-path-actions-go-template": [
+        "../../packages/go-template/src/index.ts"
+      ],
+      "@fluidapi/monaco-json-path-actions-jq": ["../../packages/jq/src/index.ts"],
+      "@fluidapi/monaco-json-path-actions-json-pointer": [
+        "../../packages/json-pointer/src/index.ts"
+      ]
+    },
     "types": ["vite/client"]
   },
   "include": ["src"]
