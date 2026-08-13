@@ -18,13 +18,9 @@ export type GetJsonPathOptions = {
 }
 
 const JSON_PATH_SAFE_IDENTIFIER_REGEX = /^[A-Za-z_$][A-Za-z0-9_$]*$/
-const GO_TEMPLATE_SAFE_IDENTIFIER_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/
 
 const isJsonPathSafeIdentifier = (value: string) =>
   JSON_PATH_SAFE_IDENTIFIER_REGEX.test(value)
-
-const isGoTemplateSafeIdentifier = (value: string) =>
-  GO_TEMPLATE_SAFE_IDENTIFIER_REGEX.test(value)
 
 const isPropertyKeyNode = (node: Node) =>
   node.parent?.type === 'property' && node.parent.children?.[0] === node
@@ -82,17 +78,3 @@ export const formatJsonPath = (path: JsonPathPart[]) =>
       return `[${JSON.stringify(part)}]`
     })
     .join('')
-
-export const formatGoTemplatePath = (path: JsonPathPart[]) => {
-  const canUseDotNotation = path.every(
-    (part) => typeof part === 'string' && isGoTemplateSafeIdentifier(part)
-  )
-
-  if (canUseDotNotation) return `{{ .${path.join('.')} }}`
-
-  const indexArgs = path
-    .map((part) => (typeof part === 'number' ? String(part) : JSON.stringify(part)))
-    .join(' ')
-
-  return `{{ index . ${indexArgs} }}`
-}

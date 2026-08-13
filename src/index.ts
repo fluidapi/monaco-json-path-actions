@@ -1,5 +1,4 @@
 export {
-  formatGoTemplatePath,
   formatJsonPath,
   getJsonPathAtOffset,
   getJsonPathAtPosition,
@@ -9,9 +8,11 @@ export {
 } from './jsonPath.js'
 
 export {
+  createJsonPathAction,
   registerJsonPathActions,
   type Disposable,
-  type JsonPathActionFormat,
+  type JsonPathActionDefinition,
+  type JsonPathFormatter,
   type MonacoEditorAction,
   type MonacoEditorLike,
   type MonacoModelLike,

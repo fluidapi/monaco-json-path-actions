@@ -1,11 +1,8 @@
 import {
-  formatGoTemplatePath,
   formatJsonPath,
   getJsonPathAtPosition,
   type JsonPathPart
 } from './jsonPath.js'
-
-export type JsonPathActionFormat = 'jsonPath' | 'goTemplatePath'
 
 export type Disposable = {
   dispose: () => void
@@ -32,28 +29,32 @@ export type MonacoEditorLike<Position = unknown> = {
   getPosition: () => Position | null
 }
 
-export type RegisterJsonPathActionsOptions = {
-  labels?: Partial<Record<JsonPathActionFormat, string>>
-  enabledFormats?: JsonPathActionFormat[]
+export type JsonPathFormatter = (path: JsonPathPart[]) => string
+
+export type JsonPathActionDefinition = {
+  id: string
+  label: string
+  formatter: JsonPathFormatter
   contextMenuGroupId?: string
-  contextMenuOrder?: Partial<Record<JsonPathActionFormat, number>>
+  contextMenuOrder?: number
+  precondition?: string
+}
+
+export type RegisterJsonPathActionsOptions = {
+  actions?: JsonPathActionDefinition[]
+  contextMenuGroupId?: string
+  contextMenuOrder?: number
   precondition?: string
   isEnabledForLanguage?: (languageId: string) => boolean
   copyText?: (text: string) => void | Promise<void>
-  onCopied?: (text: string, format: JsonPathActionFormat, path: JsonPathPart[]) => void
-  onUnavailable?: (format: JsonPathActionFormat) => void
+  onCopied?: (text: string, action: JsonPathActionDefinition, path: JsonPathPart[]) => void
+  onUnavailable?: (action: JsonPathActionDefinition) => void
   onCopyError?: (
     error: unknown,
     text: string,
-    format: JsonPathActionFormat,
+    action: JsonPathActionDefinition,
     path: JsonPathPart[]
   ) => void
-}
-
-type FormatConfig = {
-  id: string
-  defaultLabel: string
-  formatter: (path: JsonPathPart[]) => string
 }
 
 const DEFAULT_JSON_LANGUAGE_IDS = new Set(['json', 'jsonc'])
@@ -62,18 +63,14 @@ const DEFAULT_PRECONDITION = "editorLangId == 'json' || editorLangId == 'jsonc'"
 
 const DEFAULT_CONTEXT_MENU_GROUP_ID = '9_cutcopypaste'
 
-const FORMAT_CONFIG: Record<JsonPathActionFormat, FormatConfig> = {
-  jsonPath: {
-    id: 'copy-json-path',
-    defaultLabel: 'Copy JSON Path',
-    formatter: formatJsonPath
-  },
-  goTemplatePath: {
-    id: 'copy-go-template-path',
-    defaultLabel: 'Copy Go Template Path',
-    formatter: formatGoTemplatePath
-  }
-}
+export const createJsonPathAction = (
+  overrides: Partial<JsonPathActionDefinition> = {}
+): JsonPathActionDefinition => ({
+  id: 'fluid.copy-json-path',
+  label: 'Copy JSON Path',
+  formatter: formatJsonPath,
+  ...overrides
+})
 
 const defaultCopyText = async (text: string) => {
   if (!globalThis.navigator?.clipboard?.writeText) {
@@ -93,27 +90,28 @@ export const registerJsonPathActions = <Position>(
   editor: MonacoEditorLike<Position>,
   options: RegisterJsonPathActionsOptions = {}
 ): Disposable => {
-  const enabledFormats = options.enabledFormats ?? ['jsonPath', 'goTemplatePath']
+  const actions = options.actions ?? [createJsonPathAction()]
   const copyText = options.copyText ?? defaultCopyText
   const isEnabledForLanguage =
     options.isEnabledForLanguage ??
     ((languageId: string) => DEFAULT_JSON_LANGUAGE_IDS.has(languageId))
 
-  const disposables = enabledFormats.map((format, index) => {
-    const config = FORMAT_CONFIG[format]
-
-    return editor.addAction({
-      id: `fluid.${config.id}`,
-      label: options.labels?.[format] ?? config.defaultLabel,
-      contextMenuGroupId: options.contextMenuGroupId ?? DEFAULT_CONTEXT_MENU_GROUP_ID,
-      contextMenuOrder: options.contextMenuOrder?.[format] ?? index + 3,
-      precondition: options.precondition ?? DEFAULT_PRECONDITION,
+  const disposables = actions.map((action, index) =>
+    editor.addAction({
+      id: action.id,
+      label: action.label,
+      contextMenuGroupId:
+        action.contextMenuGroupId ??
+        options.contextMenuGroupId ??
+        DEFAULT_CONTEXT_MENU_GROUP_ID,
+      contextMenuOrder: action.contextMenuOrder ?? options.contextMenuOrder ?? index + 3,
+      precondition: action.precondition ?? options.precondition ?? DEFAULT_PRECONDITION,
       run: async () => {
         const model = editor.getModel()
         const position = editor.getPosition()
 
         if (!model || !position) {
-          options.onUnavailable?.(format)
+          options.onUnavailable?.(action)
           return
         }
 
@@ -124,21 +122,21 @@ export const registerJsonPathActions = <Position>(
         const path = getJsonPathAtPosition(model, position)
 
         if (!path) {
-          options.onUnavailable?.(format)
+          options.onUnavailable?.(action)
           return
         }
 
-        const text = config.formatter(path)
+        const text = action.formatter(path)
 
         try {
           await copyText(text)
-          options.onCopied?.(text, format, path)
+          options.onCopied?.(text, action, path)
         } catch (error) {
-          options.onCopyError?.(error, text, format, path)
+          options.onCopyError?.(error, text, action, path)
         }
       }
     })
-  })
+  )
 
   return createCombinedDisposable(disposables)
 }

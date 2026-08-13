@@ -1,20 +1,19 @@
 {
   "name": "@fluidapi/monaco-json-path-actions",
-  "version": "0.1.0",
-  "description": "Monaco editor actions for copying JSON paths and Go template paths from JSON/JSONC documents.",
+  "version": "0.2.0",
+  "description": "Extensible Monaco editor actions for copying JSON paths from JSON/JSONC documents.",
   "type": "module",
   "license": "MIT",
   "author": "Fluid API",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:fluidapi/monaco-json-path-actions.git"
+    "url": "git+ssh://git@github.com/fluidapi/monaco-json-path-actions.git"
   },
   "keywords": [
     "monaco-editor",
     "json",
     "jsonc",
-    "json-path",
-    "go-template"
+    "json-path"
   ],
   "sideEffects": false,
   "files": [
@@ -30,10 +29,15 @@
   },
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && npm run build -w @fluidapi/monaco-json-path-actions-go-template",
+    "build:core": "tsc -p tsconfig.build.json",
+    "build:addons": "npm run build -w @fluidapi/monaco-json-path-actions-go-template",
     "test": "node --test test/*.test.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @fluidapi/monaco-json-path-actions-go-template",
     "validate": "npm run typecheck && npm run build && npm test"
   },
   "dependencies": {

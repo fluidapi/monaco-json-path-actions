@@ -1,0 +1,44 @@
+{
+  "name": "@fluidapi/monaco-json-path-actions-go-template",
+  "version": "0.1.0",
+  "description": "Go Template formatter add-on for @fluidapi/monaco-json-path-actions.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Fluid API",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fluidapi/monaco-json-path-actions.git",
+    "directory": "packages/go-template"
+  },
+  "keywords": [
+    "monaco-editor",
+    "json",
+    "json-path",
+    "go-template"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@fluidapi/monaco-json-path-actions": "^0.2.0"
+  },
+  "devDependencies": {
+    "@fluidapi/monaco-json-path-actions": "file:../..",
+    "typescript": "^5.4.5"
+  }
+}

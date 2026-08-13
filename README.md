@@ -1,8 +1,8 @@
 # @fluidapi/monaco-json-path-actions
 
-Monaco editor actions for copying the JSON path under the cursor from JSON and JSONC documents.
+Extensible Monaco editor actions for copying the JSON path under the cursor from JSON and JSONC documents.
 
-The package exposes pure path utilities and a small Monaco integration helper. It does not depend on React, toast libraries, app-specific i18n, or a clipboard abstraction.
+The core package exposes pure JSON path utilities and a small Monaco integration helper. It does not depend on React, toast libraries, app-specific i18n, or a clipboard abstraction. Formatters for template languages can live in optional add-on packages.
 
 ## Install
 
@@ -10,16 +10,24 @@ The package exposes pure path utilities and a small Monaco integration helper. I
 npm install @fluidapi/monaco-json-path-actions
 ```
 
+Optional Go Template formatter:
+
+```bash
+npm install @fluidapi/monaco-json-path-actions-go-template
+```
+
 ## Usage
 
 ```ts
-import { registerJsonPathActions } from '@fluidapi/monaco-json-path-actions'
+import {
+  createJsonPathAction,
+  registerJsonPathActions
+} from '@fluidapi/monaco-json-path-actions'
 
 const disposable = registerJsonPathActions(editor, {
-  labels: {
-    jsonPath: 'Copy JSON Path',
-    goTemplatePath: 'Copy Go Template Path'
-  },
+  actions: [
+    createJsonPathAction({ label: 'Copy JSON Path' })
+  ],
   copyText: (text) => navigator.clipboard.writeText(text),
   onCopied: (text) => console.info(`Copied: ${text}`),
   onUnavailable: () => console.warn('No JSON path at this position')
@@ -29,26 +37,53 @@ const disposable = registerJsonPathActions(editor, {
 disposable.dispose()
 ```
 
-The helper registers two context menu actions by default:
+`registerJsonPathActions(editor)` registers `fluid.copy-json-path` by default. Actions are enabled for Monaco models whose language id is `json` or `jsonc`.
 
-- `fluid.copy-json-path`
-- `fluid.copy-go-template-path`
+## Add-On Actions
 
-Actions are enabled for Monaco models whose language id is `json` or `jsonc`.
+Additional actions can be passed through the same `actions` option. For Go Template support:
+
+```ts
+import {
+  createJsonPathAction,
+  registerJsonPathActions
+} from '@fluidapi/monaco-json-path-actions'
+import { createGoTemplatePathAction } from '@fluidapi/monaco-json-path-actions-go-template'
+
+const disposable = registerJsonPathActions(editor, {
+  actions: [
+    createJsonPathAction({ label: 'Copy JSON Path' }),
+    createGoTemplatePathAction({ label: 'Copy Go Template Path' })
+  ],
+  copyText: (text) => navigator.clipboard.writeText(text)
+})
+```
+
+Custom actions only need an id, label, and formatter:
+
+```ts
+registerJsonPathActions(editor, {
+  actions: [
+    {
+      id: 'copy-json-pointer',
+      label: 'Copy JSON Pointer',
+      formatter: (path) => `/${path.map(String).join('/')}`
+    }
+  ]
+})
+```
 
 ## Pure Utilities
 
 ```ts
 import {
   getJsonPathAtOffset,
-  formatJsonPath,
-  formatGoTemplatePath
+  formatJsonPath
 } from '@fluidapi/monaco-json-path-actions'
 
 const path = getJsonPathAtOffset('{"customer":{"name":"Acme"}}', 15)
 
 formatJsonPath(path!) // customer.name
-formatGoTemplatePath(path!) // {{ .customer.name }}
 ```
 
 ## Formatting Rules
@@ -66,17 +101,16 @@ formatJsonPath(['$schema'])
 // $schema
 ```
 
-Go Template output uses dot notation only when every property is safe for Go templates. Arrays and non-safe keys use `index`:
+Go Template output is provided by `@fluidapi/monaco-json-path-actions-go-template`:
 
 ```ts
+import { formatGoTemplatePath } from '@fluidapi/monaco-json-path-actions-go-template'
+
 formatGoTemplatePath(['customer', 'name'])
 // {{ .customer.name }}
 
 formatGoTemplatePath(['customer', 'orders', 0, 'shipping-address', 'city'])
 // {{ index . "customer" "orders" 0 "shipping-address" "city" }}
-
-formatGoTemplatePath(['$schema'])
-// {{ index . "$schema" }}
 ```
 
 ## API
@@ -93,9 +127,9 @@ Accepts a Monaco-like model with `getValue()` and `getOffsetAt(position)`.
 
 Formats path parts as JavaScript-like property access.
 
-### `formatGoTemplatePath(path)`
+### `createJsonPathAction(overrides?)`
 
-Formats path parts as a complete Go Template expression wrapped in `{{ ... }}`.
+Creates the default JSON path Monaco action definition.
 
 ### `registerJsonPathActions(editor, options?)`
 
@@ -103,13 +137,13 @@ Registers context menu actions on a Monaco-like editor and returns a disposable.
 
 Important options:
 
-- `labels`: localized labels for each action.
+- `actions`: custom action definitions. Defaults to `Copy JSON Path`.
 - `copyText`: clipboard callback.
 - `onCopied`: success callback.
 - `onUnavailable`: called when no path can be resolved.
 - `onCopyError`: called when `copyText` fails.
 - `isEnabledForLanguage`: override language eligibility.
-- `enabledFormats`: choose `jsonPath`, `goTemplatePath`, or both.
+- `contextMenuGroupId`, `contextMenuOrder`, `precondition`: Monaco action defaults.
 
 ## Development
 
